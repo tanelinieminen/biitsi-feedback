@@ -753,9 +753,14 @@
       localStorage.setItem('biitsi_responses', JSON.stringify(stored));
     }
 
-    // Häivytä kaikki lomakekortit
+    // Häivytä lomake — pakota layout ensin jotta transitio käynnistyy
     const wrap = document.getElementById('form-cards-wrap');
-    wrap.classList.add('fading');
+    wrap.style.transition = 'opacity .45s ease, filter .45s ease, transform .45s ease';
+    wrap.getBoundingClientRect(); // pakottaa renderöinnin
+    wrap.style.opacity = '0';
+    wrap.style.filter = 'blur(8px)';
+    wrap.style.transform = 'translateY(-14px)';
+    wrap.style.pointerEvents = 'none';
 
     // Näytä kiitosviesti animaation jälkeen
     setTimeout(() => {
@@ -764,7 +769,7 @@
       success.style.display = 'block';
       setLang(currentLang);
       success.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }, 480);
+    }, 500);
   });
 
   function val(form, name) {
