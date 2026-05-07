@@ -355,11 +355,27 @@
     }
     .national-description strong { color: var(--ink); font-weight: 700; }
 
+    /* ── FADE OUT ── */
+    .card {
+      transition: opacity .5s ease, filter .5s ease, transform .5s ease;
+    }
+    .card.fading-out {
+      opacity: 0;
+      filter: blur(6px);
+      transform: translateY(-8px);
+      pointer-events: none;
+    }
+
     /* ── SUCCESS ── */
     .success-msg {
       display: none;
       text-align: center;
       padding: 48px 32px;
+      opacity: 0;
+      transition: opacity .6s ease;
+    }
+    .success-msg.visible {
+      opacity: 1;
     }
     .success-msg .check { font-size: 3rem; margin-bottom: 16px; }
     .success-msg h3 {
@@ -713,11 +729,22 @@
       localStorage.setItem('biitsi_responses', JSON.stringify(stored));
     }
 
-    document.getElementById('submit-card').style.display = 'none';
-    const success = document.getElementById('success-msg');
-    success.style.display = 'block';
-    setLang(currentLang);
-    success.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    // Sumenna ja häivytä kaikki lomakekortit
+    const cards = document.querySelectorAll('#feedback-form .card:not(#success-msg)');
+    cards.forEach(c => c.classList.add('fading-out'));
+
+    // Näytä kiitosviesti kun häivytys on valmis
+    setTimeout(() => {
+      cards.forEach(c => { c.style.display = 'none'; });
+      const success = document.getElementById('success-msg');
+      success.style.display = 'block';
+      setLang(currentLang);
+      // Triggeröi opacity-siirtymä
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => { success.classList.add('visible'); });
+      });
+      success.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 520);
   });
 
   function val(form, name) {
