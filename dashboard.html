@@ -502,7 +502,7 @@
 
         // LATAA VASTAUKSET
         function loadResponses() {
-            const data = localStorage.getItem('feedbackResponses');
+            const data = localStorage.getItem('biitsi_responses');
             allResponses = data ? JSON.parse(data) : [];
             filteredResponses = [...allResponses];
         }
@@ -542,7 +542,7 @@
             document.getElementById('avgRating').textContent = avgRating.toFixed(1);
 
             // Ylitti odotukset
-            const exceeded = responses.filter(r => r.exceeded === 'yes').length;
+            const exceeded = responses.filter(r => r.met === 'Ylitti odotukset!' || r.exceeded === 'yes').length;
             const exceededPercent = Math.round((exceeded / total) * 100);
             document.getElementById('exceededPercent').textContent = exceededPercent + '%';
         }
@@ -597,8 +597,8 @@
             });
 
             // Odotukset
-            const exceededYes = responses.filter(r => r.exceeded === 'yes').length;
-            const exceededNo = responses.filter(r => r.exceeded === 'no').length;
+            const exceededYes = responses.filter(r => r.met === 'Ylitti odotukset!' || r.exceeded === 'yes').length;
+            const exceededNo = responses.filter(r => r.met === 'Ei' || r.met === 'Kyllä' || r.exceeded === 'no').length;
 
             if (charts.expectationsChart) charts.expectationsChart.destroy();
             charts.expectationsChart = new Chart(document.getElementById('expectationsChart'), {
@@ -649,7 +649,7 @@
                         ${Object.entries(r.ratings || {}).slice(0, 4).map(([k, v]) => `<span>${k}: ${v}/5</span>`).join('')}
                     </div>
                     <div class="response-feedback">"${r.feedback || '-'}"</div>
-                    <small>NPS: ${r.nps}/10 • Ylitti odotukset: ${r.exceeded === 'yes' ? 'Kyllä' : 'Ei'}</small>
+                    <small>NPS: ${r.nps}/10 • Odotukset: ${r.met || (r.exceeded === 'yes' ? 'Ylitti odotukset!' : 'Ei')}</small>
                 </div>
             `).join('');
 
@@ -661,7 +661,7 @@
             if (confirm('Poista tämä vastaus?')) {
                 const responseToDelete = filteredResponses[idx];
                 allResponses = allResponses.filter(r => r.timestamp !== responseToDelete.timestamp);
-                localStorage.setItem('feedbackResponses', JSON.stringify(allResponses));
+                localStorage.setItem('biitsi_responses', JSON.stringify(allResponses));
                 loadResponses();
                 updateDashboard();
             }
@@ -764,7 +764,7 @@
                     }
                 }
 
-                localStorage.setItem('feedbackResponses', JSON.stringify(allResponses));
+                localStorage.setItem('biitsi_responses', JSON.stringify(allResponses));
                 loadResponses();
                 updateDashboard();
                 alert('✅ CSV tuotu onnistuneesti!');
