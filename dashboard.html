@@ -302,9 +302,6 @@
   <div class="section-heading">Yksittäiset vastaukset</div>
   <div class="filter-row">
     <input type="text" id="search" placeholder="Hae nimellä, yrityksellä tai palautteella…" oninput="renderCards()" />
-    <input type="date" id="card-start" onchange="renderCards()" style="flex:0 0 auto" />
-    <span style="align-self:center;color:var(--grey);font-size:.8rem">–</span>
-    <input type="date" id="card-end" onchange="renderCards()" style="flex:0 0 auto" />
     <select id="filter-loc" onchange="renderCards()">
       <option value="">Kaikki sijainnit</option>
       <option value="Salmisaari">Salmisaari</option>
@@ -623,9 +620,9 @@ function renderCards() {
   const filterLoc = document.getElementById('filter-loc').value;
   const filterNPS = document.getElementById('filter-nps').value;
 
-  const filtered = applyDateFilter(allData, 'card-start', 'card-end').filter(r => {
-    if (search && !`${r.name} ${r.open} ${r.source}`.toLowerCase().includes(search)) return false;
-    if (filterLoc && !r.location.includes(filterLoc)) return false;
+  const filtered = [...allData].reverse().filter(r => {
+    if (search && !`${r.name} ${r.company || ''} ${r.open} ${r.source}`.toLowerCase().includes(search)) return false;
+    if (filterLoc && !(r.location || '').includes(filterLoc)) return false;
     if (filterNPS === 'pro' && !(r.nps >= 9)) return false;
     if (filterNPS === 'pas' && !(r.nps >= 7 && r.nps <= 8)) return false;
     if (filterNPS === 'det' && !(r.nps <= 6)) return false;
@@ -640,7 +637,7 @@ function renderCards() {
     return;
   }
 
-  container.innerHTML = filtered.slice().reverse().map(r => {
+  container.innerHTML = filtered.map(r => {
     const npsClass  = r.nps >= 9 ? 'nps-pro' : r.nps >= 7 ? 'nps-pas' : 'nps-det';
     const metClass  = r.met === 'Ylitti odotukset!' ? 'badge-wow' : r.met === 'Kyllä' ? 'badge-yes' : 'badge-no';
     const locBadge  = r.location ? `<span class="badge badge-loc">${r.location.replace('Biitsi ','')}</span>` : '';
@@ -649,7 +646,7 @@ function renderCards() {
     const ts        = r.timestamp ? new Date(r.timestamp).toLocaleString('fi-FI') : '';
 
     const miniRatings = RATING_KEYS.map((k, i) => {
-      const v = r.ratings[k];
+      const v = r.ratings ? r.ratings[k] : null;
       return v != null ? `<span class="mini-r"><span class="dot dot-${v}">${v}</span>${RATING_LABELS[i]}</span>` : '';
     }).filter(Boolean).join('');
 
