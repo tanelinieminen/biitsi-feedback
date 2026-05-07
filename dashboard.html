@@ -236,7 +236,7 @@
     <input type="date" id="sum-start" onchange="render()" style="flex:0 0 auto" />
     <span style="align-self:center;color:var(--grey);font-size:.8rem">–</span>
     <input type="date" id="sum-end" onchange="render()" style="flex:0 0 auto" />
-    <button class="btn btn-ghost" style="font-size:.75rem;padding:6px 12px" onclick="document.getElementById('sum-start').value='';document.getElementById('sum-end').value='';render()">Tyhjennä</button>
+    <button class="btn" style="font-size:.75rem;padding:6px 12px;background:#fff;border:1.5px solid var(--border);color:var(--navy)" onclick="document.getElementById('sum-start').value='';document.getElementById('sum-end').value='';render()">Tyhjennä</button>
   </div>
   <div class="stats-row">
     <div class="stat-card">
@@ -283,7 +283,7 @@
       <div class="chart-wrap" style="height:200px"><canvas id="chart-nps"></canvas></div>
     </div>
     <div class="chart-card">
-      <h3>Odotukset täyttyivätkö?</h3>
+      <h3>Täyttyivätkö odotukset?</h3>
       <div class="chart-wrap" style="height:200px"><canvas id="chart-exp"></canvas></div>
     </div>
   </div>
@@ -459,12 +459,13 @@ function clearData() {
 
 /* ── STATS ── */
 function calcNPS(data) {
-  const v = data.filter(r => r.nps);
+  const v = data.filter(r => r.nps != null && r.nps !== '');
   if (!v.length) return { score: null, pro: 0, pas: 0, det: 0, n: 0 };
-  const pro = v.filter(r => r.nps >= 9).length;
-  const det = v.filter(r => r.nps <= 6).length;
-  const pas = v.length - pro - det;
-  return { score: Math.round(((pro - det) / v.length) * 100), pro, pas, det, n: v.length };
+  const pro = v.filter(r => r.nps >= 9).length;             // 9–10 = suosittelijat
+  const det = v.filter(r => r.nps <= 6).length;             // 0–6  = arvostelijat
+  const pas = v.length - pro - det;                          // 7–8  = passiiviset
+  const score = Math.round(((pro - det) / v.length) * 100); // virallinen NPS-kaava
+  return { score, pro, pas, det, n: v.length };
 }
 
 function avgRatings(data) {
@@ -575,15 +576,15 @@ function renderBarChart(avgs) {
 function renderNPSChart(d) {
   const ctx = document.getElementById('chart-nps').getContext('2d');
   if (charts.nps) charts.nps.destroy();
-  const bins = Array(10).fill(0);
-  d.forEach(r => { if (r.nps) bins[r.nps - 1]++; });
+  const bins = Array(11).fill(0);
+  d.forEach(r => { if (r.nps != null && r.nps !== '') bins[r.nps]++; });
   charts.nps = new Chart(ctx, {
     type: 'bar',
     data: {
-      labels: ['1','2','3','4','5','6','7','8','9','10'],
+      labels: ['0','1','2','3','4','5','6','7','8','9','10'],
       datasets: [{
         data: bins,
-        backgroundColor: [...Array(6).fill('#E05454'), ...'78'.split('').map(() => '#F59E0B'), ...'910'.split('').map(() => '#2C6E5E')],
+        backgroundColor: [...Array(7).fill('#E05454'), '#F59E0B','#F59E0B','#2C6E5E','#2C6E5E'],
         borderRadius: 4,
       }]
     },
