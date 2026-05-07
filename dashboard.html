@@ -163,9 +163,53 @@
     .resp-count { font-size: .8rem; color: var(--grey); font-weight: 500; margin-bottom: 12px; }
     .empty-state { text-align: center; padding: 60px 20px; color: var(--grey); }
     .empty-state .icon { font-size: 2.5rem; margin-bottom: 12px; }
+
+    /* ── LOGIN ── */
+    .login-wrap {
+      min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      background: var(--navy);
+    }
+    .login-box {
+      background: #243b55; border-radius: 16px; padding: 48px 40px;
+      width: 100%; max-width: 380px; box-shadow: 0 8px 40px rgba(0,0,0,.4);
+      text-align: center;
+    }
+    .login-logo { font-size: 1.3rem; font-weight: 700; color: var(--lime); letter-spacing: .08em; margin-bottom: 6px; }
+    .login-sub  { font-size: .78rem; color: rgba(255,255,255,.4); margin-bottom: 32px; }
+    .login-input {
+      width: 100%; padding: 13px 16px; border-radius: 8px;
+      border: 1.5px solid rgba(255,255,255,.12); background: rgba(255,255,255,.06);
+      color: #fff; font-family: 'Montserrat', sans-serif; font-size: .9rem;
+      outline: none; margin-bottom: 12px; transition: border-color .18s;
+    }
+    .login-input:focus { border-color: var(--lime); }
+    .login-input::placeholder { color: rgba(255,255,255,.25); }
+    .login-btn {
+      width: 100%; padding: 13px; border-radius: 8px; border: none;
+      background: var(--lime); color: var(--navy);
+      font-family: 'Montserrat', sans-serif; font-size: .88rem; font-weight: 700;
+      cursor: pointer; transition: opacity .15s; letter-spacing: .04em;
+    }
+    .login-btn:hover { opacity: .88; }
+    .login-error { color: #fca5a5; font-size: .78rem; margin-top: 10px; min-height: 18px; }
+    .app-wrap { display: none; }
   </style>
 </head>
 <body>
+
+<!-- LOGIN -->
+<div class="login-wrap" id="login-wrap">
+  <div class="login-box">
+    <div class="login-logo">BIITSI.FI</div>
+    <div class="login-sub">Palautedashboard · Kirjaudu sisään</div>
+    <input class="login-input" type="password" id="pw-input" placeholder="Salasana" />
+    <button class="login-btn" onclick="tryLogin()">Kirjaudu</button>
+    <div class="login-error" id="login-error"></div>
+  </div>
+</div>
+
+<!-- APP -->
+<div class="app-wrap" id="app-wrap">
 
 <div class="topbar">
   <div class="topbar-logo">BIITSI.FI · Dashboard</div>
@@ -268,8 +312,36 @@
   <div class="resp-count" id="resp-count"></div>
   <div id="cards-container"></div>
 </div>
+</div> <!-- /app-wrap -->
 
 <script>
+const PASSWORD = 'OlenIhana!';
+
+function tryLogin() {
+  const val = document.getElementById('pw-input').value;
+  if (val === PASSWORD) {
+    sessionStorage.setItem('bii_auth', '1');
+    document.getElementById('login-wrap').style.display = 'none';
+    document.getElementById('app-wrap').style.display = 'block';
+    init();
+  } else {
+    document.getElementById('login-error').textContent = 'Väärä salasana.';
+    document.getElementById('pw-input').value = '';
+    document.getElementById('pw-input').focus();
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('pw-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') tryLogin();
+  });
+  if (sessionStorage.getItem('bii_auth') === '1') {
+    document.getElementById('login-wrap').style.display = 'none';
+    document.getElementById('app-wrap').style.display = 'block';
+    init();
+  }
+});
+
 const RATING_KEYS   = ['tunnelma','musiikki','tilat','tiedonsaanti','yhteistyo','hintalaatu','ruokailu','saunat','aktiviteetit','ohjelma','narikka','kokous'];
 const RATING_LABELS = ['Tunnelma','Musiikki','Tilat','Tiedonsaanti','Yhteistyö','Hinta/laatu','Ruokailu','Saunat','Aktiviteetit','Ohjelma','Narikka','Kokous'];
 
@@ -578,7 +650,7 @@ function renderCards() {
   }).join('');
 }
 
-init();
+// init() called after login
 </script>
 </body>
 </html>
