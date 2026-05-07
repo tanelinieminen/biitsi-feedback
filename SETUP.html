@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Biitsi Palautelomake – Setup Opas</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --lime:   #FBFFA8;
+      --black:  #111111;
+      --ink:    #1E1E1E;
+      --muted:  #6B6B6B;
+      --border: #E6E6DC;
+      --cream:  #FEFFEE;
+      --white:  #FFFFFF;
+    }
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: var(--cream);
+      color: var(--ink);
+      line-height: 1.6;
+    }
+    .topbar {
+      background: var(--black);
+      padding: 16px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .topbar-logo {
+      font-weight: 800;
+      font-size: 1.15rem;
+      color: var(--lime);
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 40px 32px 80px;
+    }
+    .hero {
+      background: linear-gradient(135deg, var(--black) 0%, #2a3f4a 100%);
+      color: white;
+      padding: 60px 32px;
+      border-radius: 16px;
+      margin-bottom: 40px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -40%; left: 50%;
+      transform: translateX(-50%);
+      width: 600px; height: 400px;
+      background: var(--lime);
+      opacity: .08;
+      border-radius: 50%;
+      filter: blur(60px);
+    }
+    .hero-content { position: relative; z-index: 2; }
+    .hero h1 { font-size: 2rem; font-weight: 800; margin-bottom: 12px; }
+    .hero p { font-size: .95rem; color: rgba(255,255,255,.7); max-width: 600px; }
+
+    .section {
+      background: var(--white);
+      border-radius: 12px;
+      padding: 32px 36px;
+      margin-bottom: 24px;
+      border-left: 4px solid var(--lime);
+      box-shadow: 0 2px 12px rgba(0,0,0,.06);
+    }
+    .section h2 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--black);
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1.5px solid var(--border);
+    }
+    .section h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--ink);
+      margin-top: 20px;
+      margin-bottom: 10px;
+    }
+    .section h3:first-of-type { margin-top: 0; }
+    .section p {
+      color: var(--muted);
+      margin-bottom: 12px;
+      font-size: .95rem;
+    }
+    .section ul, .section ol {
+      margin-left: 24px;
+      margin-bottom: 16px;
+      color: var(--muted);
+    }
+    .section li {
+      margin-bottom: 8px;
+      line-height: 1.7;
+    }
+    .code-block {
+      background: #f5f5f5;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      font-family: 'Courier New', monospace;
+      font-size: .85rem;
+      overflow-x: auto;
+      margin: 14px 0;
+      color: #333;
+    }
+    .highlight {
+      background: rgba(251,255,168,.3);
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-weight: 600;
+    }
+    .tip, .warning {
+      padding: 16px 20px;
+      border-radius: 8px;
+      margin: 16px 0;
+      font-size: .9rem;
+    }
+    .tip {
+      background: rgba(44,110,94,.08);
+      border-left: 3px solid #2C6E5E;
+      color: #1a4d3d;
+    }
+    .warning {
+      background: rgba(245,158,11,.1);
+      border-left: 3px solid #F59E0B;
+      color: #92400e;
+    }
+    .step-counter {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      background: var(--lime);
+      color: var(--black);
+      border-radius: 50%;
+      font-weight: 700;
+      margin-right: 12px;
+    }
+    .step-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+    .file-tree {
+      background: #f9f9f9;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      font-family: 'Courier New', monospace;
+      font-size: .85rem;
+      color: #333;
+      margin: 14px 0;
+    }
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin: 16px 0;
+    }
+    .feature-card {
+      background: var(--cream);
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+      text-align: center;
+    }
+    .feature-card .icon { font-size: 2.4rem; margin-bottom: 8px; }
+    .feature-card h4 { font-size: .95rem; font-weight: 700; color: var(--ink); margin-bottom: 6px; }
+    .feature-card p { font-size: .8rem; color: var(--muted); }
+    footer {
+      text-align: center;
+      padding: 32px 16px;
+      font-size: .75rem;
+      color: var(--muted);
+      margin-top: 40px;
+      border-top: 1px solid var(--border);
+    }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-logo">BIITSI.FI</div>
+</div>
+
+<div class="container">
+  <div class="hero">
+    <div class="hero-content">
+      <h1>🌴 Palautelomake & Dashboard</h1>
+      <p>Vaihe-vaiheelta ohje palautelomakkeen asentamiseen ja käyttöönottoon GitHubissa.</p>
+    </div>
+  </div>
+
+  <!-- YLEISKATSAUS -->
+  <div class="section">
+    <h2>📋 Yleiskatsaus</h2>
+    <p>Biitsi palautelomakejärjestelmä koostuu kahdesta päätiedostosta:</p>
+    <div class="feature-grid">
+      <div class="feature-card">
+        <div class="icon">📝</div>
+        <h4>Palautelomake</h4>
+        <p><span class="highlight">feedback.html</span><br/>Asiakkaiden täyttämä lomake</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">📊</div>
+        <h4>Dashboard</h4>
+        <p><span class="highlight">dashboard.html</span><br/>Vastausten analysointi & hallinta</p>
+      </div>
+    </div>
+    <div class="tip">
+      ℹ️ Järjestelmä toimii kokonaan selaimessa (localhost) käyttäen localStorage-teknologiaa. Ei palvelintaustan tarvetta.
+    </div>
+  </div>
+
+  <!-- TIEDOSTORAKENNE -->
+  <div class="section">
+    <h2>📁 Tiedostorakenne</h2>
+    <p>GitHubissa järjestys olisi seuraava:</p>
+    <div class="file-tree">
+feedback/<br/>
+├── index.html<br/>
+├── dashboard.html<br/>
+├── SETUP.html<br/>
+└── README.md<br/>
+    </div>
+    <h3>Tiedostojen merkitys:</h3>
+    <ul>
+      <li><span class="highlight">feedback.html</span> – Palautelomake, avaa osoitteesta <code>/feedback/</code></li>
+      <li><span class="highlight">dashboard.html</span> – Hallintapaneeli, avaa osoitteesta <code>/feedback/dashboard.html</code></li>
+      <li><span class="highlight">SETUP.html</span> – Tämä opas</li>
+      <li><span class="highlight">README.md</span> – GitHub-dokumentaatio</li>
+    </ul>
+  </div>
+
+  <!-- KÄYTTÖÖNOTTO -->
+  <div class="section">
+    <h2>🚀 Käyttöönotto</h2>
+
+    <div class="step-header">
+      <span class="step-counter">1</span>
+      <h3>Lataa tiedostot GitHubista</h3>
+    </div>
+    <p>Kloonaa repon feedback-kansio:</p>
+    <div class="code-block">
+git clone &lt;repo-url&gt;<br/>
+cd feedback
+    </div>
+
+    <div class="step-header">
+      <span class="step-counter">2</span>
+      <h3>Testaa paikallisesti</h3>
+    </div>
+    <p>Avaa tiedostot suoraan selaimessasi tai käytä yksinkertaista palvelinta:</p>
+    <div class="code-block">
+# Python 3<br/>
+python -m http.server 8000<br/>
+<br/>
+# tai Node.js http-server<br/>
+npx http-server
+    </div>
+    <p>Siirry osoitteeseen <code>http://localhost:8000/feedback/</code></p>
+
+    <div class="step-header">
+      <span class="step-counter">3</span>
+      <h3>Deployaa web-palvelimelle</h3>
+    </div>
+    <p>Paina muutokset GitHubiin ja deployaa palvelimellesi (esim. GitHub Pages, Vercel, Netlify):</p>
+    <div class="code-block">
+git add .<br/>
+git commit -m "Päivitys: uusi palautelomake"<br/>
+git push origin main
+    </div>
+  </div>
+
+  <!-- PALAUTELOMAKE -->
+  <div class="section">
+    <h2>📝 Palautelomakkeen käyttö</h2>
+    <h3>Ominaisuudet</h3>
+    <ul>
+      <li><strong>Kaksikielinen</strong> – Suomi & Englanti</li>
+      <li><strong>Nimi ja yritys</strong> – Erilliset kentät</li>
+      <li><strong>NPS 0-10</strong> – Suositteluindeksi nyt 0-10 asteikolla</li>
+      <li><strong>Klikkaa poistamaan</strong> – Voit poistaa valitun vastauksen klikkaamalla sitä uudelleen</li>
+      <li><strong>12 arviointialuetta</strong> – Tunnelma, musiikki, tilat, jne.</li>
+      <li><strong>Avoin palaute</strong> – Vapaa kommenttikenttä</li>
+      <li><strong>Urheilijatuen valinta</strong> – Maajoukkueen tukeminen</li>
+    </ul>
+
+    <h3>Datan tallennus</h3>
+    <p>Kun asiakkaiden täyttävät lomakkeen:</p>
+    <ol>
+      <li>Data tallennetaan selaimen <span class="highlight">localStorage</span>-muistiin</li>
+      <li>Data on näkyvillä <span class="highlight">dashboard.html</span>:ssä kirjautumisen jälkeen</li>
+      <li>Voit viedä datan CSV-muodossa hallintapaneelista</li>
+    </ol>
+
+    <div class="tip">
+      💡 <strong>Vihje:</strong> Kunkin lomakkeen täytön jälkeen näkyy "Iso kiitos palautteestanne!" -viesti ja data tallennetaan automaattisesti.
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="section">
+    <h2>📊 Hallintapaneelin (Dashboard) käyttö</h2>
+    <h3>Kirjautuminen</h3>
+    <p>Dashboard on suojattu salasanalla:</p>
+    <div class="code-block">
+Oletussalasana: <strong>biitsi2024</strong>
+    </div>
+    <div class="warning">
+      ⚠️ <strong>Turvallisuus:</strong> Muuta salasana ennen julkaisua! Avaa <span class="highlight">dashboard.html</span>, etsi <code>const DEFAULT_PASSWORD</code> ja muuta arvo.
+    </div>
+
+    <h3>Näkymät</h3>
+    <ul>
+      <li><strong>Yhteenveto</strong> – Vastausmäärä, NPS-pisteet, keskiarvo</li>
+      <li><strong>Kaaviot</strong> – NPS-jakauma, odotuksiin vastaaminen, lähde</li>
+      <li><strong>Yksittäiset vastaukset</strong> – Hae ja suodata vastauksia</li>
+      <li><strong>Poista vastaukset</strong> – Jokaisen vastauksen kohdalla roskakori-nappi</li>
+    </ul>
+
+    <h3>Toiminnot</h3>
+    <ul>
+      <li><span class="highlight">Vie CSV</span> – Vie vastaukset Excel-taulukkoon</li>
+      <li><span class="highlight">Tuo CSV</span> – Tuo aiempia vastauksia CSV-tiedostosta</li>
+      <li><span class="highlight">Poista-nappi</span> – Poista yksittäisiä vastauksia</li>
+      <li><span class="highlight">Suodattimet</span> – Hae nimen, yrityksen tai palautteen perusteella</li>
+    </ul>
+
+    <div class="tip">
+      💡 <strong>Vihje:</strong> Data säilyy selaimessa. Vie CSV-muodossa säilyttämistä varten!
+    </div>
+  </div>
+
+  <!-- KONFIGURAATIO -->
+  <div class="section">
+    <h2>⚙️ Konfiguraatio</h2>
+
+    <h3>Salasanan vaihto</h3>
+    <p>Avaa <span class="highlight">dashboard.html</span> tekstieditorilla ja etsi rivi:</p>
+    <div class="code-block">
+const DEFAULT_PASSWORD = 'biitsi2024';
+    </div>
+    <p>Vaihda <code>biitsi2024</code> omaksesi, esim:</p>
+    <div class="code-block">
+const DEFAULT_PASSWORD = 'ominensalasana123';
+    </div>
+
+    <h3>Brändäys</h3>
+    <p>CSS-värit voi muuttaa molemmissa tiedostoissa. Etsi <code>:root</code> sektiosta:</p>
+    <div class="code-block">
+--lime: #FBFFA8;    /* Biitsin keltainen */<br/>
+--black: #111111;   /* Pääväri */<br/>
+--cream: #FEFFEE;   /* Tausta */
+    </div>
+
+    <h3>Teksti & kielet</h3>
+    <p>Molemmat tiedostot käyttävät <span class="highlight">data-fi</span> ja <span class="highlight">data-en</span> attribuutteja kaksikielisyydelle. Muuta tekstit etsiessä näitä attribuutteja.</p>
+  </div>
+
+  <!-- RATKAISUT -->
+  <div class="section">
+    <h2>🔧 Ongelmanratkaisu</h2>
+
+    <h3>Data ei näy dashboardissa</h3>
+    <ul>
+      <li>Tarkista, että käytät samaa verkkotunnusta (localhost tai sama domain)</li>
+      <li>Avaa selaimen Developer Tools (F12) → Application → localStorage</li>
+      <li>Etsi avain <span class="highlight">biitsi_responses</span></li>
+    </ul>
+
+    <h3>Salasana ei toimi</h3>
+    <ul>
+      <li>Tyhjennä selaimen välimuisti (Ctrl+Shift+Del)</li>
+      <li>Tarkista, että muutit salasanan <span class="highlight">dashboard.html</span> oikealla tavalla</li>
+      <li>Kirjaudu ulos ja yritä uudelleen</li>
+    </ul>
+
+    <h3>CSV-viennin toiminnot</h3>
+    <ul>
+      <li>Vie-nappi lataa tiedoston <code>biitsi-palautteet-YYYY-MM-DD.csv</code></li>
+      <li>Tuonnin yhteydessä nykyiset tiedot ylikirjoitetaan</li>
+    </ul>
+  </div>
+
+  <!-- URL-OHJEET -->
+  <div class="section">
+    <h2>🌐 URL-osoitteet</h2>
+    <p>Kun järjestelmä on julkaistu:</p>
+    <div class="code-block">
+📝 Palautelomake:<br/>
+https://biitsi.fi/feedback/  (tai /feedback/index.html)<br/>
+<br/>
+📊 Hallintapaneeli:<br/>
+https://biitsi.fi/feedback/dashboard.html<br/>
+<br/>
+📖 Ohje:<br/>
+https://biitsi.fi/feedback/SETUP.html
+    </div>
+    <div class="tip">
+      💡 <strong>Linkitys:</strong> Voit linkittää palautelomakkeen asiakkaisille omilla kanavilla. Dashboard on vain sisäiseen käyttöön.
+    </div>
+  </div>
+
+  <!-- TUKI -->
+  <div class="section">
+    <h2>❓ Tarvitsetko apua?</h2>
+    <p>Jos kohtaat ongelmia:</p>
+    <ol>
+      <li>Tarkista Developer Console (F12) virheistä</li>
+      <li>Tarkista localStorage-data (Application → Storage)</li>
+      <li>Kokeile toista selainta</li>
+      <li>Poista selaimen välimuisti ja evästeet</li>
+    </ol>
+  </div>
+
+</div>
+
+<footer>
+  &copy; 2025 Biitsi.fi · Palautelomakejärjestelmä
+</footer>
+
+</body>
+</html>

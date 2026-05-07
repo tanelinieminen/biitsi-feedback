@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Biitsi.fi – Palautelomake / Feedback</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      /* ── Biitsi brand palette ── */
+      --lime:    #FBFFA8;   /* primary accent — Biitsi lime-yellow */
+      --lime-dk: #EEF270;   /* hover state */
+      --cream:   #FEFFEE;   /* page background */
+      --black:   #111111;   /* topbar, hero, headings */
+      --ink:     #1E1E1E;   /* body text */
+      --muted:   #6B6B6B;   /* secondary text */
+      --border:  #E6E6DC;   /* dividers */
+      --white:   #FFFFFF;   /* card surfaces */
+      --radius:  10px;
+      --shadow:  0 1px 12px rgba(0,0,0,.07), 0 4px 24px rgba(0,0,0,.04);
+    }
+
+    body {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 400;
+      background: var(--cream);
+      color: var(--ink);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    /* ── TOP BAR ── */
+    .topbar {
+      background: var(--black);
+      padding: 16px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .topbar-logo {
+      font-weight: 800;
+      font-size: 1.15rem;
+      color: var(--lime);
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+    .lang-toggle {
+      display: flex;
+      border: 1.5px solid rgba(255,255,255,.18);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .lang-btn {
+      background: transparent;
+      border: none;
+      color: rgba(255,255,255,.45);
+      font-family: 'Montserrat', sans-serif;
+      font-size: .75rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      padding: 6px 15px;
+      cursor: pointer;
+      transition: background .18s, color .18s;
+    }
+    .lang-btn.active {
+      background: var(--lime);
+      color: var(--black);
+    }
+
+    /* ── HERO ── */
+    .hero {
+      background: var(--black);
+      padding: 60px 32px 76px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::after {
+      content: '';
+      position: absolute;
+      bottom: -60px; left: 50%;
+      transform: translateX(-50%);
+      width: 520px; height: 200px;
+      background: var(--lime);
+      opacity: .07;
+      border-radius: 50%;
+      filter: blur(40px);
+      pointer-events: none;
+    }
+    .hero-tag {
+      display: inline-block;
+      background: var(--lime);
+      color: var(--black);
+      font-size: .68rem;
+      font-weight: 800;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      padding: 5px 14px;
+      border-radius: 3px;
+      margin-bottom: 22px;
+    }
+    .hero h1 {
+      font-size: clamp(1.9rem, 4vw, 2.9rem);
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.15;
+      max-width: 600px;
+      margin: 0 auto 16px;
+      letter-spacing: -.01em;
+    }
+    .hero p {
+      color: rgba(255,255,255,.55);
+      font-size: .92rem;
+      font-weight: 300;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
+    /* ── LAYOUT ── */
+    .container {
+      max-width: 740px;
+      margin: 40px auto 0;
+      padding: 0 20px 80px;
+    }
+
+    /* ── CARD ── */
+    .card {
+      background: var(--white);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 36px 40px;
+      margin-bottom: 16px;
+    }
+    @media (max-width: 600px) {
+      .card { padding: 24px 20px; }
+    }
+
+    .section-label {
+      font-size: .65rem;
+      font-weight: 800;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+    .card h2 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1.5px solid var(--border);
+    }
+
+    /* ── FORM ELEMENTS ── */
+    .field { margin-bottom: 22px; }
+    .field:last-child { margin-bottom: 0; }
+
+    .field-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    @media (max-width: 600px) {
+      .field-row { grid-template-columns: 1fr; }
+    }
+
+    label.field-label {
+      display: block;
+      font-size: .83rem;
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 8px;
+    }
+    label.field-label .req { color: #C0A800; margin-left: 2px; }
+
+    input[type="text"],
+    textarea {
+      width: 100%;
+      border: 1.5px solid var(--border);
+      border-radius: 7px;
+      padding: 11px 14px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: .87rem;
+      color: var(--ink);
+      background: var(--cream);
+      transition: border-color .18s, box-shadow .18s;
+      outline: none;
+      resize: vertical;
+    }
+    input[type="text"]:focus,
+    textarea:focus {
+      border-color: #C8C800;
+      box-shadow: 0 0 0 3px rgba(251,255,168,.35);
+      background: #fff;
+    }
+    textarea { min-height: 110px; }
+
+    /* ── PILLS ── */
+    .pill-group { display: flex; flex-wrap: wrap; gap: 8px; }
+    .pill-group input[type="radio"] { display: none; }
+    .pill-group label {
+      border: 1.5px solid var(--border);
+      border-radius: 4px;
+      padding: 8px 20px;
+      font-size: .82rem;
+      font-weight: 600;
+      color: var(--muted);
+      cursor: pointer;
+      transition: border-color .18s, background .18s, color .18s;
+      user-select: none;
+      letter-spacing: .02em;
+    }
+    .pill-group input[type="radio"]:checked + label {
+      border-color: var(--black);
+      background: var(--lime);
+      color: var(--black);
+    }
+    .pill-group label:hover {
+      border-color: var(--black);
+      color: var(--ink);
+    }
+
+    /* ── RATING HINT ── */
+    .rating-hint {
+      font-size: .78rem;
+      color: var(--muted);
+      font-weight: 400;
+      font-style: italic;
+    }
+
+    /* ── RATING GRID ── */
+    .rating-grid { width: 100%; border-collapse: collapse; }
+    .rating-grid thead th {
+      font-size: .7rem;
+      font-weight: 700;
+      color: var(--muted);
+      text-align: center;
+      padding: 0 6px 12px;
+      letter-spacing: .08em;
+    }
+    .rating-grid thead th:first-child { text-align: left; padding-left: 0; }
+    .rating-grid tbody tr { border-top: 1px solid var(--border); }
+    .rating-grid tbody tr:first-child { border-top: none; }
+    .rating-grid td {
+      padding: 10px 6px;
+      text-align: center;
+      vertical-align: middle;
+    }
+    .rating-grid td:first-child {
+      text-align: left;
+      padding-left: 0;
+      font-size: .83rem;
+      color: var(--ink);
+      font-weight: 500;
+      white-space: nowrap;
+      padding-right: 16px;
+    }
+    .rating-grid input[type="radio"] { display: none; }
+    .rating-grid .star-label {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 34px; height: 34px;
+      border-radius: 5px;
+      border: 1.5px solid var(--border);
+      font-size: .8rem;
+      font-weight: 700;
+      color: var(--muted);
+      cursor: pointer;
+      transition: background .15s, border-color .15s, color .15s;
+    }
+    .rating-grid input[type="radio"]:checked + .star-label {
+      background: var(--lime);
+      border-color: #C8C800;
+      color: var(--black);
+    }
+    .rating-grid .star-label:hover {
+      background: rgba(251,255,168,.5);
+      border-color: #C8C800;
+      color: var(--black);
+    }
+
+    /* ── NPS ── */
+    .nps-row { display: flex; gap: 6px; flex-wrap: wrap; }
+    .nps-row input[type="radio"] { display: none; }
+    .nps-row .nps-label {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 48px; height: 48px;
+      border-radius: 7px;
+      border: 1.5px solid var(--border);
+      font-size: .88rem;
+      font-weight: 700;
+      color: var(--muted);
+      cursor: pointer;
+      transition: background .15s, border-color .15s, color .15s;
+    }
+    .nps-row input[type="radio"]:checked + .nps-label {
+      background: var(--lime);
+      border-color: #C8C800;
+      color: var(--black);
+    }
+    .nps-row .nps-label:hover {
+      background: rgba(251,255,168,.45);
+      border-color: #C8C800;
+      color: var(--black);
+    }
+    .nps-labels-row {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 10px;
+    }
+    .nps-labels-row span {
+      font-size: .7rem;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    /* ── SUBMIT ── */
+    .submit-area { text-align: center; padding: 32px 40px; }
+    .btn-submit {
+      background: var(--lime);
+      color: var(--black);
+      border: none;
+      border-radius: 6px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: .9rem;
+      font-weight: 800;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      padding: 16px 52px;
+      cursor: pointer;
+      transition: background .18s, transform .1s;
+    }
+    .btn-submit:hover  { background: var(--lime-dk); }
+    .btn-submit:active { transform: scale(.98); }
+
+    /* ── NATIONAL TEAM CARD ── */
+    .national-description {
+      font-size: .87rem;
+      line-height: 1.75;
+      color: var(--muted);
+      font-weight: 400;
+      padding: 16px;
+      background: var(--cream);
+      border-left: 3px solid var(--lime);
+      border-radius: 4px;
+      margin-bottom: 4px;
+    }
+    .national-description strong { color: var(--ink); font-weight: 700; }
+
+    /* ── SUCCESS ── */
+    .success-msg {
+      display: none;
+      text-align: center;
+      padding: 48px 32px;
+    }
+    .success-msg .check { font-size: 3rem; margin-bottom: 16px; }
+    .success-msg h3 {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--ink);
+      margin-bottom: 10px;
+    }
+    .success-msg p { color: var(--muted); font-size: .88rem; }
+
+    /* ── FOOTER ── */
+    footer {
+      text-align: center;
+      padding: 32px 16px;
+      font-size: .72rem;
+      color: var(--muted);
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 560px) {
+      .rating-grid td:first-child { font-size: .74rem; white-space: normal; }
+      .rating-grid .star-label { width: 28px; height: 28px; font-size: .7rem; }
+      .nps-row .nps-label { width: 36px; height: 36px; font-size: .8rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="topbar-logo">BIITSI.FI</div>
+  <div class="lang-toggle">
+    <button class="lang-btn active" onclick="setLang('fi')" id="btn-fi">FI</button>
+    <button class="lang-btn" onclick="setLang('en')" id="btn-en">EN</button>
+  </div>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-tag" data-fi="Tapahtumapalautelomake" data-en="Event Feedback Form">Tapahtumapalautelomake</div>
+  <h1 data-fi="Kiitos, että valitsitte meidät! 🌴" data-en="Thank you for choosing us! 🌴">Kiitos, että valitsitte meidät! 🌴</h1>
+  <p data-fi="Haluaisimme kuulla, miten tapahtuma mielestänne sujui. Palautteenne auttaa meitä kehittämään palveluamme entistä paremmaksi. Kysely vie vain muutaman minuutin." data-en="We'd love to hear how your event went. Your feedback helps us make every experience even better. The survey only takes a few minutes.">
+    Haluaisimme kuulla, miten tapahtuma mielestänne sujui. Palautteenne auttaa meitä kehittämään palveluamme entistä paremmaksi. Kysely vie vain muutaman minuutin.
+  </p>
+</div>
+
+<!-- FORM -->
+<div class="container">
+  <form id="feedback-form" novalidate>
+
+    <!-- Card 1: Basic info -->
+    <div class="card">
+      <div class="field-row">
+        <div class="field">
+          <label class="field-label" for="name">
+            <span data-fi="Nimi" data-en="Name">Nimi</span><span class="req">*</span>
+          </label>
+          <input type="text" id="name" name="name" required
+            data-placeholder-fi="Etunimi Sukunimi" data-placeholder-en="First Last"
+            placeholder="Etunimi Sukunimi" />
+        </div>
+        <div class="field">
+          <label class="field-label" for="company">
+            <span data-fi="Yritys" data-en="Company">Yritys</span><span class="req">*</span>
+          </label>
+          <input type="text" id="company" name="company" required
+            data-placeholder-fi="Yritys Oy" data-placeholder-en="Company Ltd"
+            placeholder="Yritys Oy" />
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="source">
+          <span data-fi="Mistä sait kuulla Biitsistä?" data-en="How did you hear about Biitsi?">Mistä sait kuulla Biitsistä?</span>
+        </label>
+        <input type="text" id="source" name="source"
+          data-placeholder-fi="Esim. suositus, Google, some..." data-placeholder-en="E.g. referral, Google, social media..."
+          placeholder="Esim. suositus, Google, some..." />
+      </div>
+    </div>
+
+    <!-- Card 2: Event -->
+    <div class="card">
+      <div class="section-label" data-fi="Tapahtuma" data-en="Event">Tapahtuma</div>
+      <h2 data-fi="Tapahtuman tiedot" data-en="Event Details">Tapahtuman tiedot</h2>
+
+      <div class="field">
+        <label class="field-label">
+          <span data-fi="Kummalla hiekkarannalla tapahtumanne oli?" data-en="Which beach was your event at?">Kummalla hiekkarannalla tapahtumanne oli?</span>
+        </label>
+        <div class="pill-group">
+          <input type="radio" name="location" id="loc1" value="Biitsi Salmisaari" />
+          <label for="loc1">Biitsi Salmisaari</label>
+          <input type="radio" name="location" id="loc2" value="Biitsi Pasila" />
+          <label for="loc2">Biitsi Pasila</label>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="field-label">
+          <span data-fi="Vastasiko Biitsi odotuksianne?" data-en="Did Biitsi meet your expectations?">Vastasiko Biitsi odotuksianne?</span>
+        </label>
+        <div class="pill-group">
+          <input type="radio" name="met" id="exp1" value="Kyllä" />
+          <label for="exp1" data-fi="Kyllä" data-en="Yes">Kyllä</label>
+          <input type="radio" name="met" id="exp2" value="Ei" />
+          <label for="exp2" data-fi="Ei" data-en="No">Ei</label>
+          <input type="radio" name="met" id="exp3" value="Ylitti odotukset!" />
+          <label for="exp3" data-fi="Ylitti odotukset! ✨" data-en="Exceeded expectations! ✨">Ylitti odotukset! ✨</label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 3: Ratings -->
+    <div class="card">
+      <div class="section-label" data-fi="Arviointi" data-en="Ratings">Arviointi</div>
+      <h2 data-fi="Mitä mieltä seuraavista osa-alueista? (1–5)" data-en="How would you rate the following? (1–5)">Mitä mieltä seuraavista osa-alueista? (1–5)</h2>
+      <p class="rating-hint" data-fi="Jätä kohta tyhjäksi, jos ette käyttäneet kyseistä palvelua." data-en="Leave a row empty if you did not use that service.">Jätä kohta tyhjäksi, jos ette käyttäneet kyseistä palvelua.</p>
+
+      <div style="overflow-x:auto; margin-top: 20px;">
+        <table class="rating-grid">
+          <thead>
+            <tr>
+              <th></th>
+              <th>1</th><th>2</th><th>3</th><th>4</th><th>5</th>
+            </tr>
+          </thead>
+          <tbody id="rating-tbody">
+            <!-- rows injected by JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Card 4: NPS -->
+    <div class="card">
+      <div class="section-label" data-fi="Suositteluindeksi" data-en="Net Promoter Score">Suositteluindeksi</div>
+      <h2 data-fi="Kuinka todennäköisesti suosittelisit Biitsin palveluita kollegallesi?" data-en="How likely are you to recommend Biitsi to a colleague?">
+        Kuinka todennäköisesti suosittelisit Biitsin palveluita kollegallesi? <span class="req">*</span>
+      </h2>
+
+      <div class="nps-row" id="nps-row">
+        <!-- injected by JS -->
+      </div>
+      <div class="nps-labels-row">
+        <span data-fi="En todennäköisesti" data-en="Not likely">En todennäköisesti</span>
+        <span data-fi="Erittäin todennäköisesti" data-en="Extremely likely">Erittäin todennäköisesti</span>
+      </div>
+    </div>
+
+    <!-- Card 5: Open -->
+    <div class="card">
+      <div class="section-label" data-fi="Vapaa sana" data-en="Open Feedback">Vapaa sana</div>
+      <h2 data-fi="Avoin palaute 😊" data-en="Open Feedback 😊">Avoin palaute 😊</h2>
+      <div class="field">
+        <textarea name="open" id="open"
+          data-placeholder-fi="Kirjoita tähän vapaamuotoista palautetta..."
+          data-placeholder-en="Write any additional feedback here..."
+          placeholder="Kirjoita tähän vapaamuotoista palautetta..."></textarea>
+      </div>
+    </div>
+
+    <!-- Card 6: National team support (last) -->
+    <div class="card">
+      <div class="section-label" data-fi="Urheilijatuki" data-en="Athlete Support">Urheilijatuki</div>
+
+      <p class="national-description"
+         data-fi="Suomen Beach Volley Oy on Pohjoismaiden suurin beachvolley-toimija, joka on perustettu vuonna 2005. Nykyiset ja tulevat ammattilaispelaajat palvelevat asiakkaitamme tapahtumissa. Palautekyselyn yhteydessä tarjoamme mahdollisuuden tukea urheilijoitamme lisäämällä loppulaskun summaan <strong>3 % kumppanuusmaksun</strong>."
+         data-en="Suomen Beach Volley Oy is the biggest beach volley operator in Northern countries and was founded in 2005. Current and future professional beach volley players serve our customers in their events. In connection with the feedback survey, we provide a possibility to support our athletes by adding a <strong>3% partnership payment</strong> on top of the sum of the final bill.">
+        Suomen Beach Volley Oy on Pohjoismaiden suurin beachvolley-toimija, joka on perustettu vuonna 2005. Nykyiset ja tulevat ammattilaispelaajat palvelevat asiakkaitamme tapahtumissa. Palautekyselyn yhteydessä tarjoamme mahdollisuuden tukea urheilijoitamme lisäämällä loppulaskun summaan <strong>3 % kumppanuusmaksun</strong>.
+      </p>
+
+      <div class="field" style="margin-top: 20px;">
+        <label class="field-label">
+          <span data-fi="Osallistutteko maajoukkueen tukemiseen?" data-en="Are you participating in supporting the national team?">Osallistutteko maajoukkueen tukemiseen?</span>
+        </label>
+        <div class="pill-group">
+          <input type="radio" name="national" id="nat1" value="Kyllä" />
+          <label for="nat1" data-fi="Kyllä" data-en="Yes">Kyllä</label>
+          <input type="radio" name="national" id="nat2" value="Ei" />
+          <label for="nat2" data-fi="Ei" data-en="No">Ei</label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Submit -->
+    <div class="card submit-area" id="submit-card">
+      <button type="submit" class="btn-submit" data-fi="Lähetä palaute" data-en="Submit Feedback">Lähetä palaute</button>
+    </div>
+
+    <!-- Success -->
+    <div class="card success-msg" id="success-msg">
+      <div class="check">☀️</div>
+      <h3 data-fi="Iso kiitos palautteestanne!" data-en="Thank you for your feedback!">Iso kiitos palautteestanne!</h3>
+      <p data-fi="Palautteenne on vastaanotettu. Nähdään taas rannalla!" data-en="Your feedback has been received. See you at the beach again!">
+        Palautteenne on vastaanotettu. Nähdään taas rannalla!
+      </p>
+    </div>
+
+  </form>
+</div>
+
+<footer>
+  &copy; 2026 Biitsi.fi &nbsp;·&nbsp; <span data-fi="Palautetiedot käsitellään luottamuksellisesti." data-en="Feedback is processed confidentially.">Palautetiedot käsitellään luottamuksellisesti.</span>
+</footer>
+
+<script>
+  /* ── DATA ── */
+  const ratingRows = [
+    { fi: 'Tunnelma',                                          en: 'Atmosphere',                name: 'tunnelma' },
+    { fi: 'Musiikki',                                          en: 'Music',                     name: 'musiikki' },
+    { fi: 'Tilat ja somistus',                                 en: 'Venues & Decor',            name: 'tilat' },
+    { fi: 'Tarpeellisen tiedon saaminen',                      en: 'Information provided',      name: 'tiedonsaanti' },
+    { fi: 'Yhteistyö Biitsin tuotannon ja myynnin kanssa',    en: 'Cooperation with Biitsi',   name: 'yhteistyo' },
+    { fi: 'Hinta-laatusuhde',                                  en: 'Value for money',           name: 'hintalaatu' },
+    { fi: 'Ruokailu',                                          en: 'Dining',                    name: 'ruokailu' },
+    { fi: 'Saunat',                                            en: 'Saunas',                    name: 'saunat' },
+    { fi: 'Aktiviteettiosuus',                                 en: 'Activities',                name: 'aktiviteetit' },
+    { fi: 'Ohjelmapalvelut',                                   en: 'Program services',          name: 'ohjelma' },
+    { fi: 'Sisääntulo ja narikka',                             en: 'Entry & Cloakroom',         name: 'narikka' },
+    { fi: 'Kokouspuitteet ja tekniikka',                       en: 'Meeting facilities & tech', name: 'kokous' },
+  ];
+
+  let currentLang = 'fi';
+
+  /* ── BUILD RATING GRID ── */
+  const tbody = document.getElementById('rating-tbody');
+  ratingRows.forEach((row, ri) => {
+    const tr = document.createElement('tr');
+    const labelTd = document.createElement('td');
+    labelTd.setAttribute('data-fi', row.fi);
+    labelTd.setAttribute('data-en', row.en);
+    labelTd.textContent = row.fi;
+    tr.appendChild(labelTd);
+    for (let v = 1; v <= 5; v++) {
+      const td = document.createElement('td');
+      const id = `r${ri}_${v}`;
+      td.innerHTML = `<input type="radio" name="${row.name}" id="${id}" value="${v}"><label class="star-label" for="${id}">${v}</label>`;
+      tr.appendChild(td);
+    }
+    tbody.appendChild(tr);
+  });
+
+  /* ── BUILD NPS (0-10) ── */
+  const npsRow = document.getElementById('nps-row');
+  for (let v = 0; v <= 10; v++) {
+    npsRow.innerHTML += `<input type="radio" name="nps" id="nps${v}" value="${v}"><label class="nps-label" for="nps${v}">${v}</label>`;
+  }
+
+  /* ── LANGUAGE SWITCH ── */
+  function setLang(lang) {
+    currentLang = lang;
+    document.documentElement.lang = lang;
+    document.querySelectorAll('[data-fi]').forEach(el => {
+      const val = el.getAttribute(`data-${lang}`);
+      if (el.querySelector('strong') || val.includes('<')) {
+        el.innerHTML = val;
+      } else {
+        el.textContent = val;
+      }
+    });
+    document.querySelectorAll('[data-placeholder-fi]').forEach(el => {
+      el.placeholder = el.getAttribute(`data-placeholder-${lang}`);
+    });
+    document.getElementById('btn-fi').classList.toggle('active', lang === 'fi');
+    document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+  }
+
+  /* ── TOGGLE RADIO (click again to deselect) ── */
+  document.addEventListener('change', (e) => {
+    if (e.target.type === 'radio') {
+      const radioName = e.target.name;
+      const wasChecked = e.target.dataset.wasChecked === 'true';
+
+      // Uncheck all radios with this name
+      document.querySelectorAll(`input[name="${radioName}"]`).forEach(r => {
+        r.dataset.wasChecked = r.checked ? 'true' : 'false';
+      });
+    }
+  });
+
+  document.addEventListener('click', (e) => {
+    if (e.target.type === 'radio' && e.target.dataset.wasChecked === 'true') {
+      // User clicked same radio, deselect it
+      e.target.checked = false;
+      e.target.dataset.wasChecked = 'false';
+    }
+  });
+
+  /* ── SUBMIT ── */
+  document.getElementById('feedback-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const form = e.target;
+
+    const nameEl = form.querySelector('#name');
+    const companyEl = form.querySelector('#company');
+    const npsEl  = form.querySelector('input[name="nps"]:checked');
+
+    if (!nameEl.value.trim()) {
+      nameEl.focus();
+      nameEl.style.borderColor = '#D94E4E';
+      setTimeout(() => nameEl.style.borderColor = '', 2000);
+      return;
+    }
+    if (!companyEl.value.trim()) {
+      companyEl.focus();
+      companyEl.style.borderColor = '#D94E4E';
+      setTimeout(() => companyEl.style.borderColor = '', 2000);
+      return;
+    }
+    if (!npsEl) {
+      document.getElementById('nps-row').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+
+    // Build structured record
+    const record = {
+      timestamp: new Date().toISOString(),
+      name:      form.querySelector('#name').value.trim(),
+      company:   form.querySelector('#company').value.trim(),
+      source:    form.querySelector('#source').value.trim(),
+      location:  (form.querySelector('input[name="location"]:checked') || {}).value || '',
+      met:       (form.querySelector('input[name="met"]:checked') || {}).value || '',
+      ratings: {
+        tunnelma:     val(form, 'tunnelma'),
+        musiikki:     val(form, 'musiikki'),
+        tilat:        val(form, 'tilat'),
+        tiedonsaanti: val(form, 'tiedonsaanti'),
+        yhteistyo:    val(form, 'yhteistyo'),
+        hintalaatu:   val(form, 'hintalaatu'),
+        ruokailu:     val(form, 'ruokailu'),
+        saunat:       val(form, 'saunat'),
+        aktiviteetit: val(form, 'aktiviteetit'),
+        ohjelma:      val(form, 'ohjelma'),
+        narikka:      val(form, 'narikka'),
+        kokous:       val(form, 'kokous'),
+      },
+      national:  (form.querySelector('input[name="national"]:checked') || {}).value || '',
+      nps:       parseInt(npsEl.value),
+      open:      form.querySelector('#open').value.trim(),
+    };
+
+    // 1) Save to localStorage (always works, same-domain dashboard reads this)
+    const stored = JSON.parse(localStorage.getItem('biitsi_responses') || '[]');
+    stored.push(record);
+    localStorage.setItem('biitsi_responses', JSON.stringify(stored));
+
+    // 2) Also POST to PHP backend if available (falls back silently if not)
+    try {
+      await fetch('api/save.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(record),
+      });
+    } catch (_) { /* backend not set up yet — localStorage copy is enough */ }
+
+    document.getElementById('submit-card').style.display = 'none';
+    const success = document.getElementById('success-msg');
+    success.style.display = 'block';
+    setLang(currentLang);
+    success.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
+
+  function val(form, name) {
+    const el = form.querySelector(`input[name="${name}"]:checked`);
+    return el ? parseInt(el.value) : null;
+  }
+</script>
+</body>
+</html>
