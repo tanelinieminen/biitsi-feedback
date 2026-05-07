@@ -456,7 +456,7 @@ function calcNPS(data) {
 
 function avgRatings(data) {
   return RATING_KEYS.map(k => {
-    const vals = data.map(r => r.ratings[k]).filter(v => v != null);
+    const vals = data.map(r => r.ratings ? r.ratings[k] : null).filter(v => v != null);
     return vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : null;
   });
 }
@@ -522,8 +522,8 @@ function render() {
   document.getElementById('kpi-wow-sub').textContent = d.length
     ? `${Math.round(wow / d.length * 100)}% vastaajista` : '';
 
-  const loc1 = d.filter(r => r.location.includes('Salmisaari')).length;
-  const loc2 = d.filter(r => r.location.includes('Pasila')).length;
+  const loc1 = d.filter(r => (r.location || '').includes('Salmisaari')).length;
+  const loc2 = d.filter(r => (r.location || '').includes('Pasila')).length;
   document.getElementById('kpi-loc1').textContent = `${loc1} / ${loc2}`;
 
   renderBarChart(avgs);
