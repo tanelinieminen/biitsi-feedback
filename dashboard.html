@@ -218,7 +218,6 @@
     <button class="btn btn-export" onclick="exportCSV()">↓ Vie CSV</button>
     <label class="btn btn-ghost" for="csv-input">↑ Tuo CSV</label>
     <input type="file" id="csv-input" accept=".csv" />
-    <button class="btn btn-danger" onclick="clearData()">🗑 Tyhjennä</button>
   </div>
 </div>
 
@@ -233,6 +232,12 @@
 
 <div class="container">
   <div class="section-heading">Yhteenveto</div>
+  <div class="filter-row" style="margin-bottom:16px">
+    <input type="date" id="sum-start" onchange="render()" style="flex:0 0 auto" />
+    <span style="align-self:center;color:var(--grey);font-size:.8rem">–</span>
+    <input type="date" id="sum-end" onchange="render()" style="flex:0 0 auto" />
+    <button class="btn btn-ghost" style="font-size:.75rem;padding:6px 12px" onclick="document.getElementById('sum-start').value='';document.getElementById('sum-end').value='';render()">Tyhjennä</button>
+  </div>
   <div class="stats-row">
     <div class="stat-card">
       <div class="stat-label">Vastauksia yhteensä</div>
@@ -297,6 +302,9 @@
   <div class="section-heading">Yksittäiset vastaukset</div>
   <div class="filter-row">
     <input type="text" id="search" placeholder="Hae nimellä, yrityksellä tai palautteella…" oninput="renderCards()" />
+    <input type="date" id="card-start" onchange="renderCards()" style="flex:0 0 auto" />
+    <span style="align-self:center;color:var(--grey);font-size:.8rem">–</span>
+    <input type="date" id="card-end" onchange="renderCards()" style="flex:0 0 auto" />
     <select id="filter-loc" onchange="renderCards()">
       <option value="">Kaikki sijainnit</option>
       <option value="Salmisaari">Salmisaari</option>
@@ -472,9 +480,31 @@ function countField(data, field) {
   return Object.entries(m).sort((a, b) => b[1] - a[1]);
 }
 
+/* ── DATE FILTER HELPER ── */
+function applyDateFilter(data, startId, endId) {
+  const s = document.getElementById(startId).value;
+  const e = document.getElementById(endId).value;
+  return data.filter(r => {
+    const d = r.timestamp ? r.timestamp.slice(0,10) : '';
+    if (s && d < s) return false;
+    if (e && d > e) return false;
+    return true;
+  });
+}
+
+/* ── DELETE ── */
+function deleteResponse(ts) {
+  if (!confirm('Poistetaanko tämä vastaus?')) return;
+  allData = allData.filter(r => r.timestamp !== ts);
+  localStorage.setItem('biitsi_responses', JSON.stringify(allData));
+  document.getElementById('loaded-meta').textContent = `localStorage · ${allData.length} vastausta`;
+  if (!allData.length) document.getElementById('empty-banner').classList.remove('hidden');
+  render();
+}
+
 /* ── RENDER ── */
 function render() {
-  const d   = allData;
+  const d = applyDateFilter(allData, 'sum-start', 'sum-end');
   const nps = calcNPS(d);
   const avgs = avgRatings(d);
   const validAvgs = avgs.filter(v => v != null);
@@ -606,7 +636,7 @@ function renderCards() {
   const filterLoc = document.getElementById('filter-loc').value;
   const filterNPS = document.getElementById('filter-nps').value;
 
-  const filtered = allData.filter(r => {
+  const filtered = applyDateFilter(allData, 'card-start', 'card-end').filter(r => {
     if (search && !`${r.name} ${r.open} ${r.source}`.toLowerCase().includes(search)) return false;
     if (filterLoc && !r.location.includes(filterLoc)) return false;
     if (filterNPS === 'pro' && !(r.nps >= 9)) return false;
@@ -642,7 +672,9 @@ function renderCards() {
           <div class="rc-name">${r.name || 'Nimetön'}</div>
           <div class="rc-meta">${ts}${r.source ? ' · ' + r.source : ''}</div>
         </div>
-        <div class="rc-badges">${locBadge}${metBadge}${npsChip}</div>
+        <div class="rc-badges">${locBadge}${metBadge}${npsChip}
+          <button class="btn btn-danger" style="padding:3px 10px;font-size:.7rem" onclick="deleteResponse('${r.timestamp}')">🗑</button>
+        </div>
       </div>
       <div class="mini-ratings">${miniRatings}</div>
       ${r.open ? `<div class="rc-feedback">"${r.open}"</div>` : ''}
