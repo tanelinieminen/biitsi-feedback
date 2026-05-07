@@ -620,7 +620,7 @@ function renderCards() {
   const filterLoc = document.getElementById('filter-loc').value;
   const filterNPS = document.getElementById('filter-nps').value;
 
-  const filtered = [...allData].reverse().filter(r => {
+  const filtered = [...allData].sort((a, b) => b.timestamp > a.timestamp ? 1 : -1).filter(r => {
     if (search && !`${r.name} ${r.company || ''} ${r.open} ${r.source}`.toLowerCase().includes(search)) return false;
     if (filterLoc && !(r.location || '').includes(filterLoc)) return false;
     if (filterNPS === 'pro' && !(r.nps >= 9)) return false;
