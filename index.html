@@ -702,19 +702,16 @@
       open:      form.querySelector('#open').value.trim(),
     };
 
-    // 1) Save to localStorage (always works, same-domain dashboard reads this)
-    const stored = JSON.parse(localStorage.getItem('biitsi_responses') || '[]');
-    stored.push(record);
-    localStorage.setItem('biitsi_responses', JSON.stringify(stored));
-
-    // 2) Also POST to PHP backend if available (falls back silently if not)
+    // Tallenna Firebaseen
     try {
-      await fetch('api/save.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(record),
-      });
-    } catch (_) { /* backend not set up yet — localStorage copy is enough */ }
+      const key = record.timestamp.replace(/[.:#$/\[\]]/g, '_');
+      await firebaseDB.ref('palautteet/' + key).set(record);
+    } catch (err) {
+      // Fallback: localStorage jos Firebase ei toimi
+      const stored = JSON.parse(localStorage.getItem('biitsi_responses') || '[]');
+      stored.push(record);
+      localStorage.setItem('biitsi_responses', JSON.stringify(stored));
+    }
 
     document.getElementById('submit-card').style.display = 'none';
     const success = document.getElementById('success-msg');
@@ -727,6 +724,22 @@
     const el = form.querySelector(`input[name="${name}"]:checked`);
     return el ? parseInt(el.value) : null;
   }
+</script>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script>
+  firebase.initializeApp({
+    apiKey: "AIzaSyDSeZQlOMzeMrpWIq0PhS7w0z0posYCiyA",
+    authDomain: "biitsi-vakiovuorot.firebaseapp.com",
+    databaseURL: "https://biitsi-vakiovuorot-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "biitsi-vakiovuorot",
+    storageBucket: "biitsi-vakiovuorot.firebasestorage.app",
+    messagingSenderId: "348995008729",
+    appId: "1:348995008729:web:d73c00a2af7b9710bde6c8"
+  });
+  const firebaseDB = firebase.database();
 </script>
 </body>
 </html>

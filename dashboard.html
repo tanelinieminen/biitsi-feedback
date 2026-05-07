@@ -357,32 +357,18 @@ let allData = [];
 let charts  = {};
 
 /* ── LOAD ── */
-async function init() {
-  // 1. Try PHP backend first
-  let loaded = false;
-  try {
-    const res = await fetch('api/responses.json');
-    if (res.ok) {
-      const json = await res.json();
-      if (Array.isArray(json) && json.length) {
-        allData = json;
-        document.getElementById('loaded-meta').textContent = `PHP-backend · ${json.length} vastausta`;
-        loaded = true;
-      }
-    }
-  } catch (_) {}
-
-  // 2. Fall back to localStorage
-  if (!loaded) {
-    const raw = localStorage.getItem('biitsi_responses');
-    allData = raw ? JSON.parse(raw) : [];
-    document.getElementById('loaded-meta').textContent = `localStorage · ${allData.length} vastausta`;
-  }
-
-  if (!allData.length) {
-    document.getElementById('empty-banner').classList.remove('hidden');
-  }
-  render();
+function init() {
+  firebaseDB.ref('palautteet').on('value', snap => {
+    const val = snap.val();
+    allData = val ? Object.values(val).sort((a, b) => a.timestamp > b.timestamp ? 1 : -1) : [];
+    // Yhdistä mahdolliset vanhat localStorage-vastaukset
+    const local = JSON.parse(localStorage.getItem('biitsi_responses') || '[]');
+    local.forEach(r => { if (!allData.find(x => x.timestamp === r.timestamp)) allData.push(r); });
+    document.getElementById('loaded-meta').textContent = `Firebase · ${allData.length} vastausta`;
+    if (!allData.length) document.getElementById('empty-banner').classList.remove('hidden');
+    else document.getElementById('empty-banner').classList.add('hidden');
+    render();
+  });
 }
 
 /* ── CSV IMPORT ── */
@@ -684,6 +670,22 @@ function renderCards() {
 }
 
 // init() called after login
+</script>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script>
+  firebase.initializeApp({
+    apiKey: "AIzaSyDSeZQlOMzeMrpWIq0PhS7w0z0posYCiyA",
+    authDomain: "biitsi-vakiovuorot.firebaseapp.com",
+    databaseURL: "https://biitsi-vakiovuorot-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "biitsi-vakiovuorot",
+    storageBucket: "biitsi-vakiovuorot.firebasestorage.app",
+    messagingSenderId: "348995008729",
+    appId: "1:348995008729:web:d73c00a2af7b9710bde6c8"
+  });
+  const firebaseDB = firebase.database();
 </script>
 </body>
 </html>
