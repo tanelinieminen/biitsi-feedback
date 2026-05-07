@@ -176,7 +176,7 @@
       color: var(--ink);
       margin-bottom: 8px;
     }
-    label.field-label .req { color: #C0A800; margin-left: 2px; }
+    label.field-label .req { color: #D94E4E; margin-left: 2px; font-size: 1rem; }
 
     input[type="text"],
     textarea {
@@ -356,13 +356,13 @@
     .national-description strong { color: var(--ink); font-weight: 700; }
 
     /* ── FADE OUT ── */
-    .card {
-      transition: opacity .5s ease, filter .5s ease, transform .5s ease;
+    .form-cards-wrap {
+      transition: opacity .45s ease, filter .45s ease, transform .45s ease;
     }
-    .card.fading-out {
+    .form-cards-wrap.fading {
       opacity: 0;
-      filter: blur(6px);
-      transform: translateY(-8px);
+      filter: blur(8px);
+      transform: translateY(-12px);
       pointer-events: none;
     }
 
@@ -371,12 +371,25 @@
       display: none;
       text-align: center;
       padding: 48px 32px;
-      opacity: 0;
-      transition: opacity .6s ease;
+      animation: fadeIn .6s ease forwards;
     }
-    .success-msg.visible {
-      opacity: 1;
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
     }
+
+    /* ── REQUIRED FIELDS ── */
+    .req {
+      color: #D94E4E;
+      margin-left: 3px;
+      font-weight: 700;
+    }
+    .required-note {
+      font-size: .78rem;
+      color: #999;
+      margin-bottom: 24px;
+    }
+    .required-note span { color: #D94E4E; font-weight: 700; }
     .success-msg .check { font-size: 3rem; margin-bottom: 16px; }
     .success-msg h3 {
       font-size: 1.4rem;
@@ -425,6 +438,8 @@
 <!-- FORM -->
 <div class="container">
   <form id="feedback-form" novalidate>
+
+    <div class="form-cards-wrap" id="form-cards-wrap">
 
     <!-- Card 1: Basic info -->
     <div class="card">
@@ -563,8 +578,11 @@
 
     <!-- Submit -->
     <div class="card submit-area" id="submit-card">
+      <p class="required-note"><span>*</span> Pakollinen tieto</p>
       <button type="submit" class="btn-submit" data-fi="Lähetä palaute" data-en="Submit Feedback">Lähetä palaute</button>
     </div>
+
+    </div><!-- /form-cards-wrap -->
 
     <!-- Success -->
     <div class="card success-msg" id="success-msg">
@@ -674,22 +692,28 @@
     const companyEl = form.querySelector('#company');
     const npsEl  = form.querySelector('input[name="nps"]:checked');
 
+    let hasError = false;
     if (!nameEl.value.trim()) {
-      nameEl.focus();
       nameEl.style.borderColor = '#D94E4E';
-      setTimeout(() => nameEl.style.borderColor = '', 2000);
-      return;
+      nameEl.style.background = '#fff5f5';
+      nameEl.addEventListener('input', () => { nameEl.style.borderColor = ''; nameEl.style.background = ''; }, { once: true });
+      if (!hasError) { nameEl.focus(); hasError = true; }
     }
     if (!companyEl.value.trim()) {
-      companyEl.focus();
       companyEl.style.borderColor = '#D94E4E';
-      setTimeout(() => companyEl.style.borderColor = '', 2000);
-      return;
+      companyEl.style.background = '#fff5f5';
+      companyEl.addEventListener('input', () => { companyEl.style.borderColor = ''; companyEl.style.background = ''; }, { once: true });
+      if (!hasError) { companyEl.focus(); hasError = true; }
     }
     if (!npsEl) {
-      document.getElementById('nps-row').scrollIntoView({ behavior: 'smooth', block: 'center' });
-      return;
+      const npsRow = document.getElementById('nps-row');
+      npsRow.style.outline = '2px solid #D94E4E';
+      npsRow.style.borderRadius = '8px';
+      npsRow.style.padding = '8px';
+      npsRow.addEventListener('change', () => { npsRow.style.outline = ''; npsRow.style.padding = ''; }, { once: true });
+      if (!hasError) { npsRow.scrollIntoView({ behavior: 'smooth', block: 'center' }); hasError = true; }
     }
+    if (hasError) return;
 
     // Build structured record
     const record = {
@@ -729,22 +753,18 @@
       localStorage.setItem('biitsi_responses', JSON.stringify(stored));
     }
 
-    // Sumenna ja häivytä kaikki lomakekortit
-    const cards = document.querySelectorAll('#feedback-form .card:not(#success-msg)');
-    cards.forEach(c => c.classList.add('fading-out'));
+    // Häivytä kaikki lomakekortit
+    const wrap = document.getElementById('form-cards-wrap');
+    wrap.classList.add('fading');
 
-    // Näytä kiitosviesti kun häivytys on valmis
+    // Näytä kiitosviesti animaation jälkeen
     setTimeout(() => {
-      cards.forEach(c => { c.style.display = 'none'; });
+      wrap.style.display = 'none';
       const success = document.getElementById('success-msg');
       success.style.display = 'block';
       setLang(currentLang);
-      // Triggeröi opacity-siirtymä
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => { success.classList.add('visible'); });
-      });
       success.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }, 520);
+    }, 480);
   });
 
   function val(form, name) {
