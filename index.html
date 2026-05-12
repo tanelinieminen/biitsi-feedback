@@ -756,6 +756,7 @@
     try {
       const key = record.timestamp.replace(/[.:#$/\[\]]/g, '_');
       await firebaseDB.ref('palautteet/' + key).set(record);
+      firebaseDB.ref('form_stats/completions').transaction(n => (n || 0) + 1);
     } catch (err) {
       // Fallback: localStorage jos Firebase ei toimi
       const stored = JSON.parse(localStorage.getItem('biitsi_responses') || '[]');

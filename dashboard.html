@@ -360,6 +360,7 @@ let charts  = {};
 
 /* ── LOAD ── */
 let formStarts = 0;
+let formCompletions = 0;
 
 function init() {
   firebaseDB.ref('palautteet').on('value', snap => {
@@ -377,10 +378,13 @@ function init() {
     formStarts = snap.val() || 0;
     renderAbandon();
   });
+  firebaseDB.ref('form_stats/completions').on('value', snap => {
+    formCompletions = snap.val() || 0;
+    renderAbandon();
+  });
 }
 
 function renderAbandon() {
-  const completions = allData.length;
   const el = document.getElementById('kpi-abandon');
   const sub = document.getElementById('kpi-abandon-sub');
   if (formStarts === 0) {
@@ -388,16 +392,10 @@ function renderAbandon() {
     sub.textContent = 'ei dataa vielä';
     return;
   }
-  if (formStarts <= completions) {
-    // Seuranta aloitettu jälkikäteen — näytetään vain luvut
-    el.textContent = formStarts + ' / ' + completions;
-    sub.textContent = 'aloitti seurannan aikana · lähetti yhteensä';
-    return;
-  }
-  const abandoned = formStarts - completions;
+  const abandoned = Math.max(0, formStarts - formCompletions);
   const pct = Math.round(abandoned / formStarts * 100);
   el.textContent = pct + ' %';
-  sub.textContent = `${abandoned} keskeytti · ${completions} lähetti · ${formStarts} aloitti`;
+  sub.textContent = `${abandoned} keskeytti · ${formCompletions} lähetti · ${formStarts} aloitti`;
 }
 
 /* ── CSV IMPORT ── */
