@@ -269,6 +269,11 @@
       <div class="stat-value" id="kpi-loc1">—</div>
       <div class="stat-sub" id="kpi-loc2"></div>
     </div>
+    <div class="stat-card amber">
+      <div class="stat-label">Lomakkeen täyttö</div>
+      <div class="stat-value" id="kpi-abandon">—</div>
+      <div class="stat-sub" id="kpi-abandon-sub">aloitti täyttämisen</div>
+    </div>
   </div>
 
   <div class="section-heading">Osa-alueiden keskiarvot</div>
@@ -354,11 +359,12 @@ let allData = [];
 let charts  = {};
 
 /* ── LOAD ── */
+let formStarts = 0;
+
 function init() {
   firebaseDB.ref('palautteet').on('value', snap => {
     const val = snap.val();
     allData = val ? Object.values(val).sort((a, b) => a.timestamp > b.timestamp ? 1 : -1) : [];
-    // Yhdistä mahdolliset vanhat localStorage-vastaukset
     const local = JSON.parse(localStorage.getItem('biitsi_responses') || '[]');
     local.forEach(r => { if (!allData.find(x => x.timestamp === r.timestamp)) allData.push(r); });
     document.getElementById('loaded-meta').textContent = `Firebase · ${allData.length} vastausta`;
@@ -366,6 +372,19 @@ function init() {
     else document.getElementById('empty-banner').classList.add('hidden');
     render();
   });
+
+  firebaseDB.ref('form_stats/starts').on('value', snap => {
+    formStarts = snap.val() || 0;
+    renderAbandon();
+  });
+}
+
+function renderAbandon() {
+  const completions = allData.length;
+  const pct = formStarts > 0 ? Math.round((1 - completions / formStarts) * 100) : null;
+  document.getElementById('kpi-abandon').textContent = pct !== null ? pct + ' %' : '—';
+  document.getElementById('kpi-abandon-sub').textContent =
+    formStarts > 0 ? `${formStarts} aloitti · ${completions} lähetti` : 'ei dataa vielä';
 }
 
 /* ── CSV IMPORT ── */
@@ -528,6 +547,7 @@ function render() {
   renderExpChart(d);
   renderPills('source-pills', countField(d, 'source'), d.length);
   renderPills('loc-pills',    countField(d, 'location'), d.length);
+  renderAbandon();
   renderCards();
 }
 

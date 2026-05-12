@@ -683,6 +683,16 @@
     }
   });
 
+  /* ── FORM START TRACKING ── */
+  let formStarted = false;
+  document.getElementById('feedback-form').addEventListener('focusin', () => {
+    if (formStarted) return;
+    formStarted = true;
+    try {
+      firebaseDB.ref('form_stats/starts').transaction(n => (n || 0) + 1);
+    } catch(e) {}
+  }, { once: false });
+
   /* ── SUBMIT ── */
   document.getElementById('feedback-form').addEventListener('submit', async (e) => {
     e.preventDefault();
