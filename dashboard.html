@@ -381,10 +381,23 @@ function init() {
 
 function renderAbandon() {
   const completions = allData.length;
-  const pct = formStarts > 0 ? Math.round((1 - completions / formStarts) * 100) : null;
-  document.getElementById('kpi-abandon').textContent = pct !== null ? pct + ' %' : '—';
-  document.getElementById('kpi-abandon-sub').textContent =
-    formStarts > 0 ? `${formStarts} aloitti · ${completions} lähetti` : 'ei dataa vielä';
+  const el = document.getElementById('kpi-abandon');
+  const sub = document.getElementById('kpi-abandon-sub');
+  if (formStarts === 0) {
+    el.textContent = '—';
+    sub.textContent = 'ei dataa vielä';
+    return;
+  }
+  if (formStarts <= completions) {
+    // Seuranta aloitettu jälkikäteen — näytetään vain luvut
+    el.textContent = formStarts + ' / ' + completions;
+    sub.textContent = 'aloitti seurannan aikana · lähetti yhteensä';
+    return;
+  }
+  const abandoned = formStarts - completions;
+  const pct = Math.round(abandoned / formStarts * 100);
+  el.textContent = pct + ' %';
+  sub.textContent = `${abandoned} keskeytti · ${completions} lähetti · ${formStarts} aloitti`;
 }
 
 /* ── CSV IMPORT ── */
