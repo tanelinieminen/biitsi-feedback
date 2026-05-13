@@ -433,11 +433,12 @@ const CSV_RATING_MAP = {
   'Ohjelma': 'ohjelma', 'Naulakko': 'narikka', 'Kokous': 'kokous',
 };
 
-function parseFinnishDate(d) {
-  // "10.3.2025" → "2025-03-10T12:00:00.000Z"
+function parseFinnishDate(d, idx) {
+  // "10.3.2025" → "2025-03-10T12:00:00.001Z" (idx tekee jokaisesta uniikin)
   const m = d && d.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/);
   if (!m) return d || '';
-  return `${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}T12:00:00.000Z`;
+  const ms = String(idx).padStart(3, '0');
+  return `${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}T12:00:00.${ms}Z`;
 }
 
 function parseCSV(text) {
@@ -456,7 +457,7 @@ function parseCSV(text) {
       const nimiBits = obj['Nimi'] ? obj['Nimi'].split(',') : [''];
       const name    = nimiBits[0].trim();
       const company = (obj['Yritys'] || nimiBits[1] || '').trim();
-      const ts      = parseFinnishDate(obj['Pvm']) ||
+      const ts      = parseFinnishDate(obj['Pvm'], idx + 1) ||
                       new Date(2025, 0, idx + 1).toISOString();
       const ratings = {};
       Object.entries(CSV_RATING_MAP).forEach(([col, key]) => {
