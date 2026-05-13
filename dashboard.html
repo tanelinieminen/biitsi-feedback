@@ -403,39 +403,95 @@ document.getElementById('csv-input').addEventListener('change', e => {
   const f = e.target.files[0];
   if (!f) return;
   const reader = new FileReader();
-  reader.onload = ev => {
-    allData = parseCSV(ev.target.result);
-    localStorage.setItem('biitsi_responses', JSON.stringify(allData));
-    document.getElementById('loaded-meta').textContent = `${f.name} · ${allData.length} vastausta`;
-    document.getElementById('empty-banner').classList.add('hidden');
-    render();
+  reader.onload = async ev => {
+    const imported = parseCSV(ev.target.result);
+    if (!imported.length) { alert('Tiedostossa ei löydy rivejä.'); return; }
+
+    const btn = document.getElementById('csv-input');
+    document.getElementById('loaded-meta').textContent = `Tuodaan ${imported.length} vastausta Firebaseen...`;
+
+    let ok = 0, fail = 0;
+    for (const r of imported) {
+      try {
+        const key = r.timestamp.replace(/[^a-zA-Z0-9_-]/g, '_');
+        await firebaseDB.ref('palautteet/' + key).set(r);
+        ok++;
+      } catch(err) { fail++; }
+    }
+    document.getElementById('loaded-meta').textContent =
+      `Tuonti valmis · ${ok} tallennettiin${fail ? ' · ' + fail + ' epäonnistui' : ''}`;
+    if (ok) document.getElementById('empty-banner').classList.add('hidden');
   };
   reader.readAsText(f, 'UTF-8');
 });
 
+// Suomalainen CSV → sisäinen datarakenne
+const CSV_RATING_MAP = {
+  'Tunnelma': 'tunnelma', 'Musiikki': 'musiikki', 'Tilat': 'tilat',
+  'Tiedonsaanti': 'tiedonsaanti', 'Yhteistyö': 'yhteistyo', 'Hinta-laatu': 'hintalaatu',
+  'Ruokailu': 'ruokailu', 'Saunat': 'saunat', 'Aktiviteetit': 'aktiviteetit',
+  'Ohjelma': 'ohjelma', 'Naulakko': 'narikka', 'Kokous': 'kokous',
+};
+
+function parseFinnishDate(d) {
+  // "10.3.2025" → "2025-03-10T12:00:00.000Z"
+  const m = d && d.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/);
+  if (!m) return d || '';
+  return `${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}T12:00:00.000Z`;
+}
+
 function parseCSV(text) {
-  const lines = text.trim().split('\n');
+  const lines = text.trim().split('\n').filter(l => l.trim());
   if (lines.length < 2) return [];
   const headers = splitLine(lines[0]);
-  return lines.slice(1).map(line => {
+  const isFinnish = headers.includes('Nimi');
+
+  return lines.slice(1).map((line, idx) => {
     const vals = splitLine(line);
     const obj  = {};
     headers.forEach((h, i) => obj[h.trim()] = (vals[i] || '').trim());
-    // normalise flat CSV into nested ratings object
-    const ratings = {};
-    RATING_KEYS.forEach(k => { const v = parseInt(obj[k]); ratings[k] = isNaN(v) ? null : v; });
-    return {
-      timestamp: obj.timestamp || obj.Timestamp || '',
-      name:      obj.name || '',
-      source:    obj.source || '',
-      location:  obj.location || '',
-      met:       obj.met || '',
-      ratings,
-      national:  obj.national || '',
-      nps:       parseInt(obj.nps) || null,
-      open:      obj.open || '',
-    };
-  });
+
+    if (isFinnish) {
+      // Nimi voi sisältää yrityksen: "Laura Vaskonen, Newsec"
+      const nimiBits = obj['Nimi'] ? obj['Nimi'].split(',') : [''];
+      const name    = nimiBits[0].trim();
+      const company = (obj['Yritys'] || nimiBits[1] || '').trim();
+      const ts      = parseFinnishDate(obj['Pvm']) ||
+                      new Date(2025, 0, idx + 1).toISOString();
+      const ratings = {};
+      Object.entries(CSV_RATING_MAP).forEach(([col, key]) => {
+        const v = parseFloat(obj[col]);
+        ratings[key] = isNaN(v) ? null : Math.round(v);
+      });
+      return {
+        timestamp: ts,
+        name, company,
+        source:   obj['Lähde']   || '',
+        location: obj['Sijainti'] || '',
+        met:      obj['Ylitti'] === 'Kyllä' ? 'Kyllä' : obj['Ylitti'] || '',
+        nps:      parseInt(obj['NPS']) || null,
+        open:     obj['Palaute'] || '',
+        national: '',
+        ratings,
+      };
+    } else {
+      // Englanninkielinen / aiempi formaatti
+      const ratings = {};
+      RATING_KEYS.forEach(k => { const v = parseInt(obj[k]); ratings[k] = isNaN(v) ? null : v; });
+      return {
+        timestamp: obj.timestamp || obj.Timestamp || new Date().toISOString(),
+        name:     obj.name || '',
+        company:  obj.company || '',
+        source:   obj.source || '',
+        location: obj.location || '',
+        met:      obj.met || '',
+        ratings,
+        national: obj.national || '',
+        nps:      parseInt(obj.nps) || null,
+        open:     obj.open || '',
+      };
+    }
+  }).filter(r => r.name || r.nps); // poista täysin tyhjät rivit
 }
 function splitLine(line) {
   const r = []; let cur = ''; let q = false;
