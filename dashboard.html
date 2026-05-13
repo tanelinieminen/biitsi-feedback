@@ -565,11 +565,14 @@ function applyDateFilter(data, startId, endId) {
 /* ── DELETE ── */
 function deleteResponse(ts) {
   if (!confirm('Poistetaanko tämä vastaus?')) return;
-  allData = allData.filter(r => r.timestamp !== ts);
-  localStorage.setItem('biitsi_responses', JSON.stringify(allData));
-  document.getElementById('loaded-meta').textContent = `localStorage · ${allData.length} vastausta`;
-  if (!allData.length) document.getElementById('empty-banner').classList.remove('hidden');
-  render();
+  const key = ts.replace(/[^a-zA-Z0-9_-]/g, '_');
+  firebaseDB.ref('palautteet/' + key).remove()
+    .catch(() => {
+      // Fallback: poista localStoragesta jos Firebase epäonnistuu
+      allData = allData.filter(r => r.timestamp !== ts);
+      render();
+    });
+  // Firebase .on('value') päivittää allData automaattisesti poiston jälkeen
 }
 
 /* ── RENDER ── */
