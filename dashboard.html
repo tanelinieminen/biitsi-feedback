@@ -366,8 +366,7 @@ function init() {
   firebaseDB.ref('palautteet').on('value', snap => {
     const val = snap.val();
     allData = val ? Object.values(val).sort((a, b) => a.timestamp > b.timestamp ? 1 : -1) : [];
-    const local = JSON.parse(localStorage.getItem('biitsi_responses') || '[]');
-    local.forEach(r => { if (!allData.find(x => x.timestamp === r.timestamp)) allData.push(r); });
+    localStorage.removeItem('biitsi_responses'); // puhdista vanha localStorage
     document.getElementById('loaded-meta').textContent = `Firebase · ${allData.length} vastausta`;
     if (!allData.length) document.getElementById('empty-banner').classList.remove('hidden');
     else document.getElementById('empty-banner').classList.add('hidden');
