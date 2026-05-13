@@ -544,9 +544,33 @@ function avgRatings(data) {
   });
 }
 
+function normalizeSource(raw) {
+  const s = (raw || '').trim().toLowerCase();
+  if (!s || s === 'nan' || s === 'ei vastattu') return 'Ei vastausta';
+
+  const google = ['google','netti','net','verkkohaku','verkkosivut','internet','löysin netistä','netin kautta','googlasin','wild world'];
+  const kollega = ['kollega','työkaveri','colleague','kaveri','ystävä','tuttu','puoliso','töiden kautta','työpaikalta','naapuri','ex-colleague','someone had been','sisältä','finnairin','työkaverilta, toimistosisseiltä','vinkkaus','kysyin kaverilta'];
+  const aiemmin = ['käynyt aiemmin','ollut aiemmin','käynyt aikaisemmin','ollut aikaisemmin','käynyt biitsillä','tiesin','entuudestaan','aiemmin','tutustumiskäynnillä','parties with you','office is next','käynyt pelaamassa','käynyt vapaa','virkkareissa','oltu 2 vuotta','biitsillä ennenkin','olleet tiloissa','osallistunut aiemmin','ollaan oltu'];
+  const some = ['some','mainos','instagram','facebook','linkedin'];
+  const messut = ['messu','kongressi','boost finland'];
+  const yhteistyo = ['yhteistyökumppani','yhteistyötä','hartwall'];
+
+  if (google.some(k => s.includes(k))) return 'Verkosta / Google';
+  if (some.some(k => s.includes(k))) return 'Some / mainokset';
+  if (messut.some(k => s.includes(k))) return 'Messut / tapahtumat';
+  if (yhteistyo.some(k => s.includes(k))) return 'Yhteistyökumppani';
+  if (aiemmin.some(k => s.includes(k))) return 'Käynyt aiemmin';
+  if (kollega.some(k => s.includes(k))) return 'Kollegalta / tutulta';
+  return raw.trim(); // tuntematon → säilytetään sellaisenaan
+}
+
 function countField(data, field) {
   const m = {};
-  data.forEach(r => { const v = r[field] || 'Ei vastattu'; m[v] = (m[v] || 0) + 1; });
+  data.forEach(r => {
+    const raw = r[field] || '';
+    const v = field === 'source' ? normalizeSource(raw) : (raw || 'Ei vastattu');
+    m[v] = (m[v] || 0) + 1;
+  });
   return Object.entries(m).sort((a, b) => b[1] - a[1]);
 }
 
